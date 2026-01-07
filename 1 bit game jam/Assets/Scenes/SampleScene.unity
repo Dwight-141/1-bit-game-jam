@@ -709,7 +709,7 @@ GameObject:
   - component: {fileID: 1655089343}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -932,6 +932,8 @@ MonoBehaviour:
   speed: 5
   jump: 12.5
   slamGrav: 5
+  attackCooldown: 0.1
+  jumpCooldown: 1
 --- !u!1 &1707406612
 GameObject:
   m_ObjectHideFlags: 0
@@ -1205,7 +1207,7 @@ GameObject:
   - component: {fileID: 1836814907}
   m_Layer: 0
   m_Name: Sword
-  m_TagString: Untagged
+  m_TagString: Sword
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

@@ -10,10 +10,14 @@ public class PlayerMovement : MonoBehaviour
     private bool grounded;
     private bool attacked;
     private bool slammed;
+    private float attackTimer = 0;
+    private float jumpTimer = 0;
 
     public float speed = 10f;
     public float jump = 10f;
     public float slamGrav = 5f;
+    public float attackCooldown = 1f ;
+    public float jumpCooldown = 1f ;
 
     private void Awake()
     {
@@ -23,27 +27,28 @@ public class PlayerMovement : MonoBehaviour
     }
 
     private void Update()
-    {
-        //float horizontal = 0.0f;
-        //float vertical = 0.0f;
+    {;
         bool horizontal = HorizontalMovement();
         attacked = false;
         slammed = false;
 
 
-        if (Keyboard.current.spaceKey.IsPressed() && grounded)
+        if (Keyboard.current.spaceKey.IsPressed() && grounded && Time.time >= jumpTimer)
         {
             Jump();
         }
 
-        if (Mouse.current.leftButton.IsPressed() && grounded)
+        if (Mouse.current.leftButton.IsPressed() && grounded && Time.time >= attackTimer)
         {
             Attack();
+            attackTimer = Time.time + attackCooldown;
         }
 
-        if (Mouse.current.leftButton.IsPressed() && !grounded)
+        if (Mouse.current.leftButton.IsPressed() && !grounded && Time.time >= attackTimer)
         {
             Slam();
+            attackTimer = Time.time + attackCooldown;
+            jumpTimer = Time.time + jumpCooldown;
         }
 
         body.linearVelocity = new Vector2(move * speed, body.linearVelocity.y);
