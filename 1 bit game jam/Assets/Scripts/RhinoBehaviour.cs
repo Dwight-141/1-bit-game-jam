@@ -3,11 +3,10 @@ using UnityEngine.InputSystem.Controls;
 
 public class RhinoBehaviour : MonoBehaviour
 {
-    //private Rigidbody2D rhinoBody;
     private Animator animator;
-    public bool attack;
-    public bool stunned;
-    public bool running;
+    private bool attack;
+    private bool stunned;
+    private bool running;
     private float move = -1f;
     private float stunTimer = 0;
 
@@ -15,16 +14,17 @@ public class RhinoBehaviour : MonoBehaviour
     public float speed = 10f;
     public LayerMask playerMask;
     public float stunCooldown = 1f;
+    public float knockback;
+    public PlayerHealth playerHealth;
+    public PlayerMovement playerMovement;
 
     private void Awake()
     {
-        //rhinoBody = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
     }
 
     private void Update()
     {
-        //attack = false;
         MoveDirection();
         RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.left * transform.localScale.x, distance, playerMask);
 
@@ -33,7 +33,7 @@ public class RhinoBehaviour : MonoBehaviour
             stunned = false;
             if (hit.collider != null && hit.collider.CompareTag("Player"))
             {
-                //Debug.Log("hit");
+                //Debug.Log("hit" + hit.collider.name);
 
                 attack = true;
             }
@@ -51,8 +51,6 @@ public class RhinoBehaviour : MonoBehaviour
         if (attack && !stunned && running)
         {
             transform.position = new Vector3(transform.position.x + Time.deltaTime * -transform.localScale.x * speed, transform.position.y, transform.position.z);
-            //rhinoBody.linearVelocity = new Vector2(move * speed, rhinoBody.linearVelocity.y);
-            //Debug.Log("move");
         }
     }
 
@@ -96,11 +94,20 @@ public class RhinoBehaviour : MonoBehaviour
             stunTimer = Time.time + stunCooldown;
         }
 
-        if (collision.gameObject.tag == "Player")
+        if (collision.gameObject.tag == "Player" && collision.rigidbody.gravityScale >= 3)
         {
-            //gameObject.SetActive(false);
-            Debug.Log("move");
+            //Debug.Log("move");
             Destroy(gameObject);
+        }
+        if (collision.gameObject.tag == "Player" && collision.rigidbody.gravityScale <= 3)
+        {
+            playerHealth.health--;
+            //stunned = true;
+            //attack = false;
+            //running = false;
+            //stunTimer = Time.time + stunCooldown;
+            //playerMovement.move = move;
+            collision.rigidbody.AddForce(new Vector2(0,knockback));
         }
     }
 

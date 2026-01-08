@@ -5,7 +5,7 @@ public class PlayerMovement : MonoBehaviour
 {
     private Rigidbody2D body;
     private Animator animator;
-    private float move = 0.0f;
+    public float move = 0.0f;
     private float gravity;
     private bool grounded;
     private bool attacked;
@@ -18,6 +18,7 @@ public class PlayerMovement : MonoBehaviour
     public float slamGrav = 5f;
     public float attackCooldown = 1f ;
     public float jumpCooldown = 1f ;
+    public BoxCollider2D sword;
 
     private void Awake()
     {
@@ -101,5 +102,15 @@ public class PlayerMovement : MonoBehaviour
             grounded = true;
             body.gravityScale = gravity;
         }
+    }
+
+    public void SwordActive()
+    {
+        sword.enabled = true;
+    }
+
+    public void SwordInactive()
+    {
+        sword.enabled = false;
     }
 }
