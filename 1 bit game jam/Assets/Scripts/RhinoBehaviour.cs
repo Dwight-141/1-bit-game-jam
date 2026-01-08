@@ -1,12 +1,13 @@
 using UnityEngine;
+using UnityEngine.InputSystem.Controls;
 
 public class RhinoBehaviour : MonoBehaviour
 {
-    private Rigidbody2D body;
+    //private Rigidbody2D rhinoBody;
     private Animator animator;
     public bool attack;
     public bool stunned;
-    //private bool running;
+    public bool running;
     private float move = -1f;
     private float stunTimer = 0;
 
@@ -17,7 +18,7 @@ public class RhinoBehaviour : MonoBehaviour
 
     private void Awake()
     {
-        body = GetComponent<Rigidbody2D>();
+        //rhinoBody = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
     }
 
@@ -25,16 +26,19 @@ public class RhinoBehaviour : MonoBehaviour
     {
         //attack = false;
         MoveDirection();
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.right * -1, distance, playerMask);
-        Debug.Log(transform.right);
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.left * transform.localScale.x, distance, playerMask);
 
-
-        if (hit.collider != null && hit.collider.CompareTag("Player") && Time.time >= stunTimer)
+        if (Time.time >= stunTimer)
         {
-            //Debug.Log("hit");
             stunned = false;
-            attack = true;
+            if (hit.collider != null && hit.collider.CompareTag("Player"))
+            {
+                //Debug.Log("hit");
+
+                attack = true;
+            }
         }
+
 
 
 
@@ -44,11 +48,17 @@ public class RhinoBehaviour : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (attack && !stunned)
+        if (attack && !stunned && running)
         {
-            body.linearVelocity = new Vector2(move * speed, body.linearVelocity.y);
+            transform.position = new Vector3(transform.position.x + Time.deltaTime * -transform.localScale.x * speed, transform.position.y, transform.position.z);
+            //rhinoBody.linearVelocity = new Vector2(move * speed, rhinoBody.linearVelocity.y);
             //Debug.Log("move");
         }
+    }
+
+    public void StartRun()
+    {
+        running = true;
     }
 
     public float MoveDirection()
@@ -82,13 +92,21 @@ public class RhinoBehaviour : MonoBehaviour
             }
             stunned = true;
             attack = false;
+            running = false;
             stunTimer = Time.time + stunCooldown;
+        }
+
+        if (collision.gameObject.tag == "Player")
+        {
+            //gameObject.SetActive(false);
+            Debug.Log("move");
+            Destroy(gameObject);
         }
     }
 
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawRay(transform.position, transform.right * distance * -1);
+        Gizmos.DrawRay(transform.position, Vector2.left * distance * transform.localScale.x);
     }
 }
