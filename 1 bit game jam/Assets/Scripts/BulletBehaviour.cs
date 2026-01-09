@@ -3,16 +3,15 @@ using UnityEngine;
 public class BulletBehaviour : MonoBehaviour
 {
     private Rigidbody2D body;
-    public LayerMask playerMask;
-    public LayerMask swordMask;
     public PlayerHealth playerHealth;
     public Vector2 localDirection;
     public ShooterBehaviour shooterBehaviour;
+    public GameObject sword;
 
     private void Awake()
     {
         body = GetComponent<Rigidbody2D>();
-        localDirection = -shooterBehaviour.direction;
+        
 
     }
 
@@ -20,24 +19,29 @@ public class BulletBehaviour : MonoBehaviour
     {
         playerHealth = FindAnyObjectByType<PlayerHealth>();
         shooterBehaviour = FindAnyObjectByType<ShooterBehaviour>();
+        sword = GameObject.Find("Sword");
+        localDirection = -shooterBehaviour.direction;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.layer == playerMask)
+        Debug.Log(sword.transform.position.x);
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Player") && !sword.GetComponent<BoxCollider2D>().isActiveAndEnabled)
         {
             playerHealth.health--;
             Debug.Log("player hit");
-            //Destroy(gameObject);
+            Destroy(gameObject);
         }
-        else if (collision.gameObject.layer == swordMask)
+        else if (collision.gameObject.layer == LayerMask.NameToLayer("Player") && sword.GetComponent<BoxCollider2D>().isActiveAndEnabled && sword.transform.position.x >= 0.4)
         {
             body.AddForce(localDirection * shooterBehaviour.force);
         }
         else
         {
             Debug.Log("wall hit");
-            //Destroy(gameObject);
+            Destroy(gameObject);
         }
+
+        //
     }
 }

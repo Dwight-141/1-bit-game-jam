@@ -29,12 +29,12 @@ public class ShooterBehaviour : MonoBehaviour
 
         if(head.transform.rotation.z >= 0)
         {
-            Debug.Log("left side");
+            //Debug.Log("left side");
             head.transform.localScale = Vector3.one  ;
         }
         else if(head.transform.rotation.z < 0)
         {
-            Debug.Log("right side");
+            //Debug.Log("right side");
             head.transform.localScale = new Vector3(-1, 1, 1);
         }
 

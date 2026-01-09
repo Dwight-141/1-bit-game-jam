@@ -8,7 +8,7 @@ public class PlayerMovement : MonoBehaviour
     public float move = 0.0f;
     private float gravity;
     private bool grounded;
-    private bool attacked;
+    [SerializeField] private bool attacked;
     private bool slammed;
     private float attackTimer = 0;
     private float jumpTimer = 0;
