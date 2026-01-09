@@ -402,8 +402,8 @@ MonoBehaviour:
     m_Bits: 64
   stunCooldown: 2
   knockback: 600
-  playerHealth: {fileID: 0}
-  playerMovement: {fileID: 0}
+  playerHealth: {fileID: 287227887672469185, guid: 574e53c1723ab974fb00b4e0da071ffb, type: 3}
+  playerMovement: {fileID: 2446545586542253403, guid: 574e53c1723ab974fb00b4e0da071ffb, type: 3}
 --- !u!50 &8171864336313826479
 Rigidbody2D:
   serializedVersion: 5
