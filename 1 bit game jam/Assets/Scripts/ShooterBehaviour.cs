@@ -12,6 +12,7 @@ public class ShooterBehaviour : MonoBehaviour
     public float shotCooldown;
     private float nextShotTimer = 0;
     public float force;
+    public bool isLeftSide;
 
 
     private void Awake()
@@ -31,11 +32,13 @@ public class ShooterBehaviour : MonoBehaviour
         {
             //Debug.Log("left side");
             head.transform.localScale = Vector3.one  ;
+            isLeftSide = true;
         }
         else if(head.transform.rotation.z < 0)
         {
             //Debug.Log("right side");
             head.transform.localScale = new Vector3(-1, 1, 1);
+            isLeftSide = false;
         }
 
         if (Time.time > nextShotTimer)

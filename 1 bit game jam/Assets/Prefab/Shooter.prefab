@@ -127,7 +127,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89e4866ac1fd6e14dbc33c0dc26b2af0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShooterBehaviour
-  player: {fileID: 3355095981915736699, guid: 574e53c1723ab974fb00b4e0da071ffb, type: 3}
+  player: {fileID: 0}
   head: {fileID: 7708168384112107502}
   body: {fileID: 1420641545234502914}
   bullet: {fileID: 2883693317412032759, guid: 95dbc229efd1d694b804586e0cbee707, type: 3}
@@ -135,6 +135,7 @@ MonoBehaviour:
   direction: {x: 0, y: 0}
   shotCooldown: 5
   force: 0.01
+  isLeftSide: 0
 --- !u!1 &7708168384112107502
 GameObject:
   m_ObjectHideFlags: 0
@@ -239,7 +240,7 @@ GameObject:
   m_Layer: 0
   m_Name: Bullet Start Point
   m_TagString: Untagged
-  m_Icon: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
