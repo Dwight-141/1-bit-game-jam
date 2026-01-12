@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 
@@ -13,10 +14,12 @@ public class BossBehaviour : MonoBehaviour
     public PlayerHealth playerHealth;
     public GameObject sword;
     public float knockback;
+    public bool wasHit;
 
     //spinning variables 
     public bool spinning;
     public float knockbackStartDistance;
+    public float spinningSpeed;
 
     //throwing variables
     public GameObject bullet;
@@ -24,28 +27,49 @@ public class BossBehaviour : MonoBehaviour
     public Vector2 direction;
     public float force;
 
+    //charge variables
+    public bool charging;
+    public bool stunned;
+    public bool running;
+    public float chargeSpeed;
+
+    //health
+    public float health;
+    public TextMeshProUGUI lives;
+
     private void Awake()
     {
         animator = GetComponent<Animator>();
+        sword = GameObject.Find("Sword");
     }
 
     private void Update()
     {
-        float attackPattern = Random.Range(1, 3);
-        sword = GameObject.Find("Sword");
         Vector2 playerPos = playerHealth.gameObject.transform.position;
         direction = playerPos - (Vector2)transform.position;
         cooldownTimer += Time.deltaTime;
+        //FacePlayer();
 
         if (cooldownTimer >= attackCooldown)
         {
-            if (attackPattern == 1)
+            stunned = false;
+            float attackPattern = Random.Range(1, 4);
+            if (attackPattern == 1 && !stunned)
             {
                 animator.SetTrigger("isSpinning");
+                attackCooldown = 8;
             }
-            else if (attackPattern == 2)
+            else if (attackPattern == 2 && !stunned)
             {
+                FacePlayer();
                 animator.SetTrigger("isThrowing");
+                attackCooldown = 4;
+            }
+            else if (attackPattern == 3 && !stunned)
+            {
+                FacePlayer();
+                charging = true;
+                attackCooldown = 10;
             }
             cooldownTimer = 0;
         }
@@ -54,6 +78,28 @@ public class BossBehaviour : MonoBehaviour
         {
             DamagePlayer();
         }
+
+        animator.SetBool("isCharging", charging);
+        animator.SetBool("isStunned", stunned);
+        lives.text = "Boss: " + health.ToString();
+    }
+
+    private void FixedUpdate()
+    {
+        if (charging && !stunned && running)
+        {
+            transform.position = new Vector3(transform.position.x + Time.deltaTime * -transform.localScale.x * chargeSpeed, transform.position.y, transform.position.z);
+        }
+
+        if (spinning)
+        {
+            transform.position = new Vector3(transform.position.x + Time.deltaTime * -transform.localScale.x * spinningSpeed, transform.position.y, transform.position.z);
+        }
+    }
+
+    public void StartRun()
+    {
+        running = true;
     }
 
     private bool PlayerInSight()
@@ -68,9 +114,45 @@ public class BossBehaviour : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        if (collision.gameObject.tag == "Wall")
+        {
+            Debug.Log("hit wall");
+            // looking left
+            if (transform.localScale.x > 0f)
+            {
+                transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+                Debug.Log("looking right");
+            }
+            // looking right
+            else if (transform.localScale.x < 0f)
+            {
+                transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+                Debug.Log("looking left");
+            }
+            stunned = true;
+            charging = false;
+            running = false;
+        }
         if (collision.gameObject.tag == "Player" && sword.GetComponent<BoxCollider2D>().isActiveAndEnabled)
         {
-            Destroy(gameObject);
+            if (health > 1)
+            {
+                health--;
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
+        }
+        if (collision.gameObject.tag == "Player" && charging)
+        {
+            playerHealth.health--;
+            //stunned = true;
+            //attack = false;
+            //running = false;
+            //stunTimer = Time.time + stunCooldown;
+            //playerMovement.move = move;
+            collision.rigidbody.AddForce(new Vector2(0, knockback));
         }
     }
     private void OnDrawGizmos()
@@ -82,20 +164,22 @@ public class BossBehaviour : MonoBehaviour
 
     public void DamagePlayer()
     {
-        if (PlayerInSight())
+        if (PlayerInSight() && wasHit == false)
         {
             playerHealth.health--;
             if (IsLeft())
             {
-                playerHealth.gameObject.GetComponent<Transform>().position = new Vector3(playerHealth.gameObject.GetComponent<Transform>().position.x - knockbackStartDistance, playerHealth.gameObject.GetComponent<Transform>().position.y + knockbackStartDistance, playerHealth.gameObject.GetComponent<Transform>().position.z);
-                //playerHealth.gameObject.GetComponent<Rigidbody2D>().AddForce(new Vector2(-knockback, knockback / 2));
+                //playerHealth.gameObject.GetComponent<Transform>().position = new Vector3(playerHealth.gameObject.GetComponent<Transform>().position.x - knockbackStartDistance, playerHealth.gameObject.GetComponent<Transform>().position.y + knockbackStartDistance, playerHealth.gameObject.GetComponent<Transform>().position.z);
+                playerHealth.gameObject.GetComponent<Rigidbody2D>().AddForce(new Vector2(-knockback, knockback / 2));
                 Debug.Log("got here left");
+                wasHit = true;
             }
             else
             {
-                playerHealth.gameObject.GetComponent<Transform>().position = new Vector3(playerHealth.gameObject.GetComponent<Transform>().position.x + knockbackStartDistance, playerHealth.gameObject.GetComponent<Transform>().position.y + knockbackStartDistance, playerHealth.gameObject.GetComponent<Transform>().position.z);
-                //playerHealth.gameObject.GetComponent<Rigidbody2D>().AddForce(new Vector2(knockback, knockback / 2));
+                //playerHealth.gameObject.GetComponent<Transform>().position = new Vector3(playerHealth.gameObject.GetComponent<Transform>().position.x + knockbackStartDistance, playerHealth.gameObject.GetComponent<Transform>().position.y + knockbackStartDistance, playerHealth.gameObject.GetComponent<Transform>().position.z);
+                playerHealth.gameObject.GetComponent<Rigidbody2D>().AddForce(new Vector2(knockback, knockback / 2));
                 Debug.Log("got here right");
+                wasHit = true;
             }
 
         }
@@ -118,6 +202,7 @@ public class BossBehaviour : MonoBehaviour
     public void SpinningOff()
     {
         spinning = false;
+        wasHit = false;
     }
 
     public void Shoot()
@@ -125,4 +210,69 @@ public class BossBehaviour : MonoBehaviour
         GameObject bulletIns = Instantiate(bullet, startPoint.position, Quaternion.identity);
         bulletIns.GetComponent<Rigidbody2D>().AddForce(direction * force);
     }
+
+    public void FacePlayer()
+    {
+        if (playerHealth.gameObject.GetComponent<Transform>().position.x < transform.position.x)
+        {
+            transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+            Debug.Log("face player left");
+        }
+        else if (playerHealth.gameObject.GetComponent<Transform>().position.x > transform.position.x)
+        {
+            transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+            Debug.Log("face player right");
+        }
+    }
+
+    /*
+    private void FixedUpdate()
+    {
+        if (attack && !stunned && running)
+        {
+            transform.position = new Vector3(transform.position.x + Time.deltaTime * -transform.localScale.x * speed, transform.position.y, transform.position.z);
+        }
+    }
+
+    public void StartRun()
+    {
+        running = true;
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Wall")
+        {
+            // looking left
+            if (transform.localScale.x > 0f)
+            {
+                transform.localScale = new Vector3(-1.5f, 1.5f, 1);
+            }
+            // looking right
+            else if (transform.localScale.x < 0f)
+            {
+                transform.localScale = new Vector3(1.5f, 1.5f, 1);
+            }
+            stunned = true;
+            attack = false;
+            running = false;
+            stunTimer = Time.time + stunCooldown;
+        }
+
+        if (collision.gameObject.tag == "Player" && collision.rigidbody.gravityScale >= 3)
+        {
+            //Debug.Log("move");
+            Destroy(gameObject);
+        }
+        if (collision.gameObject.tag == "Player" && collision.rigidbody.gravityScale <= 3)
+        {
+            playerHealth.health--;
+            //stunned = true;
+            //attack = false;
+            //running = false;
+            //stunTimer = Time.time + stunCooldown;
+            //playerMovement.move = move;
+            collision.rigidbody.AddForce(new Vector2(0,knockback));
+        }
+    }*/
 }

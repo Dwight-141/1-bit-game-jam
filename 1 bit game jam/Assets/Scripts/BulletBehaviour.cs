@@ -24,8 +24,15 @@ public class BulletBehaviour : MonoBehaviour
         bossBehaviour = FindAnyObjectByType<BossBehaviour>();
         sword = GameObject.Find("Sword");
         player = GameObject.Find("Player");
-        localDirection = -shooterBehaviour.direction;
-        bossLocalDirection = -bossBehaviour.direction;
+        if (shooterBehaviour != null)
+        {
+            localDirection = -shooterBehaviour.direction;
+        }
+        if (bossBehaviour != null)
+        {
+            bossLocalDirection = -bossBehaviour.direction;
+        }
+        
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
